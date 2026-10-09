@@ -251,7 +251,7 @@
             background-color: #f0e6ff;
         }
 
-        /* INTERACTIVE MAP STYLES */
+        /* MAP INTERACTIVE STYLES */
         .map-wrapper {
             position: relative;
             width: 100%;
@@ -264,22 +264,24 @@
             cursor: crosshair;
         }
 
-        .map-wrapper svg {
-            display: block;
+        .map-wrapper img {
             width: 100%;
             height: auto;
+            display: block;
+            pointer-events: none;
+            user-select: none;
         }
 
         .map-dot {
             position: absolute;
-            width: 18px;
-            height: 18px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             border: 2px solid white;
             transform: translate(-50%, -50%);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
             pointer-events: none;
-            animation: popIn 0.2s ease-out;
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .map-dot.red { background-color: var(--red); }
@@ -292,13 +294,13 @@
             cursor: pointer;
             font-weight: bold;
             color: white;
-            transition: transform 0.1s;
+            transition: transform 0.1s, box-shadow 0.2s;
         }
 
         .tool-btn.active {
             border-color: var(--dark);
             transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         @keyframes fadeIn {
@@ -515,79 +517,23 @@
                 ],
                 sensory: `
                     <p><strong>🗺️ Carte sensible du Quartier du Marais (Paris) :</strong></p>
-                    <p style="margin-bottom: 10px; font-size: 0.95rem; color: #555;">Sélectionnez une gommette puis cliquez directement sur la carte pour placer vos observations (rues minérales, cours d'hôtels particuliers, jardins ombragés, quais de Seine) :</p>
+                    <p style="margin-bottom: 10px; font-size: 0.95rem; color: #555;">
+                        Choisissez votre type de gommette puis cliquez directement sur la photo du Marais pour placer vos observations :
+                    </p>
                     
                     <div style="display: flex; gap: 15px; margin-bottom: 12px;">
                         <button id="tool-red" class="tool-btn active" style="background-color: var(--red);" onclick="setTool('red')">🔴 Point chaud ("J'ai trop chaud")</button>
                         <button id="tool-blue" class="tool-btn" style="background-color: var(--blue);" onclick="setTool('blue')">🔵 Point frais ("Je respire")</button>
+                        <button style="background-color: #666; padding: 10px 15px; border-radius: 8px; color: white; border: none; cursor: pointer;" onclick="clearDots()">🗑️ Effacer les gommettes</button>
                     </div>
 
+                    <!-- CARTE DU MARAIS INTEGRÉE DEPUIS GOOGLE DRIVE -->
                     <div class="map-wrapper" id="marais-map" onclick="placeDot(event)">
-                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
-                            <!-- FOND URBAIN -->
-                            <rect width="600" height="400" fill="#e8e5dc"/>
-                            
-                            <!-- LA SEINE (SUD) -->
-                            <path d="M 0,340 Q 200,320 400,350 T 600,380 L 600,400 L 0,400 Z" fill="#99c1e0"/>
-                            <text x="250" y="370" font-size="12" fill="#336699" font-weight="bold" font-style="italic">La Seine</text>
-
-                            <!-- ÎLE SAINT-LOUIS (PARTIEL) -->
-                            <path d="M 220,380 C 300,360 380,370 420,400 L 200,400 Z" fill="#dcd7c9" stroke="#b5b0a1" stroke-width="2"/>
-
-                            <!-- TRACÉ DES RUES PRINCIPALES DU MARAIS -->
-                            <!-- Rue de Rivoli / Saint-Antoine -->
-                            <line x1="0" y1="260" x2="600" y2="240" stroke="#ffffff" stroke-width="12"/>
-                            <line x1="0" y1="260" x2="600" y2="240" stroke="#d0c8b3" stroke-width="8"/>
-                            <text x="30" y="253" font-size="10" fill="#666" font-weight="bold">Rue de Rivoli / Rue Saint-Antoine</text>
-
-                            <!-- Rue Turenne -->
-                            <line x1="450" y1="0" x2="420" y2="330" stroke="#ffffff" stroke-width="9"/>
-                            <line x1="450" y1="0" x2="420" y2="330" stroke="#d0c8b3" stroke-width="6"/>
-                            <text x="435" y="80" font-size="9" fill="#666" transform="rotate(82 435,80)">Rue de Turenne</text>
-
-                            <!-- Rue Vieille du Temple -->
-                            <line x1="220" y1="0" x2="190" y2="320" stroke="#ffffff" stroke-width="8"/>
-                            <line x1="220" y1="0" x2="190" y2="320" stroke="#d0c8b3" stroke-width="5"/>
-                            <text x="205" y="100" font-size="9" fill="#666" transform="rotate(82 205,100)">Rue Vieille du Temple</text>
-
-                            <!-- Rue des Francs-Bourgeois -->
-                            <line x1="100" y1="140" x2="520" y2="120" stroke="#ffffff" stroke-width="8"/>
-                            <line x1="100" y1="140" x2="520" y2="120" stroke="#d0c8b3" stroke-width="5"/>
-                            <text x="250" y="134" font-size="9" fill="#666">Rue des Francs-Bourgeois</text>
-
-                            <!-- RUES SECONDAIRES -->
-                            <line x1="80" y1="0" x2="60" y2="280" stroke="#ffffff" stroke-width="5"/>
-                            <line x1="320" y1="0" x2="300" y2="250" stroke="#ffffff" stroke-width="5"/>
-                            <line x1="100" y1="70" x2="450" y2="50" stroke="#ffffff" stroke-width="5"/>
-
-                            <!-- ESPACES VERTS (ILÔTS DE FRAÎCHEUR) -->
-                            <!-- Place des Vosges -->
-                            <rect x="470" y="130" width="70" height="70" fill="#a3d9a5" stroke="#5cb85c" stroke-width="2" rx="4"/>
-                            <rect x="490" y="150" width="30" height="30" fill="#82c984" rx="2"/>
-                            <text x="473" y="123" font-size="10" fill="#2e7d32" font-weight="bold">Pl. des Vosges</text>
-
-                            <!-- Jardin des Archives Nationales -->
-                            <rect x="230" y="145" width="55" height="40" fill="#b8e6b9" stroke="#5cb85c" stroke-width="1.5" rx="3"/>
-                            <text x="232" y="168" font-size="8" fill="#2e7d32" font-weight="bold">Jardin Archives</text>
-
-                            <!-- Jardin Anne Frank / Square du Temple (Nord-Ouest) -->
-                            <path d="M 120,30 L 170,25 L 165,65 L 115,70 Z" fill="#b8e6b9" stroke="#5cb85c" stroke-width="1.5"/>
-                            <text x="122" y="50" font-size="8" fill="#2e7d32" font-weight="bold">Sq. Temple</text>
-
-                            <!-- BÂTIMENTS ET HÔTELS PARTICULIERS DENSES -->
-                            <rect x="230" y="80" width="55" height="50" fill="#c2bbb0" stroke="#a39b8f" stroke-width="1"/>
-                            <text x="235" y="105" font-size="7" fill="#444">Hôtel Soubise</text>
-
-                            <rect x="330" y="140" width="50" height="45" fill="#c2bbb0" stroke="#a39b8f" stroke-width="1"/>
-                            <text x="333" y="165" font-size="7" fill="#444">Hôtel Carnavalet</text>
-
-                            <!-- INDICATEUR DE NOM DU QUARTIER -->
-                            <rect x="15" y="15" width="160" height="28" fill="rgba(255,255,255,0.9)" rx="6" stroke="#ccc"/>
-                            <text x="25" y="33" font-size="12" font-weight="bold" fill="#46178f">📍 Paris : Le Marais</text>
-                        </svg>
+                        <img src="https://lh3.googleusercontent.com/d/1ovmCj17UyrfJ0zK8QuD0S5RYPuXSe95z" 
+                             alt="Carte du Marais depuis Google Drive" />
                     </div>
 
-                    <textarea placeholder="Décrivez votre analyse du quartier du Marais (ex: comparaison entre les rues étroites minérales et la Place des Vosges)..." style="width: 100%; height: 75px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px;"></textarea>
+                    <textarea placeholder="Décrivez votre analyse du quartier du Marais à partir de vos observations..." style="width: 100%; height: 75px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px;"></textarea>
                 `
             }
         };
@@ -692,7 +638,7 @@
             element.classList.add('selected');
         }
 
-        /* MAP INTERACTIVE FUNCTIONS */
+        /* MAP INTERACTIVE FUNCTIONS FOR GOMMETTES */
         function setTool(color) {
             currentTool = color;
             document.getElementById('tool-red').classList.toggle('active', color === 'red');
@@ -712,6 +658,12 @@
             dot.style.top = `${y}px`;
             
             mapWrapper.appendChild(dot);
+        }
+
+        function clearDots() {
+            const mapWrapper = document.getElementById('marais-map');
+            const dots = mapWrapper.querySelectorAll('.map-dot');
+            dots.forEach(dot => dot.remove());
         }
 
         function finishAxis() {
