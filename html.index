@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA STEM - Quizz Canicule T1</title>
+    <style>
+        :root {
+            --red: #e21b3c;
+            --blue: #1368ce;
+            --yellow: #ffa602;
+            --green: #26890c;
+            --dark: #121212;
+            --light: #f2f2f2;
+            --purple: #46178f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--purple);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .score-board {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* MAIN CONTAINER */
+        main {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* SCREEN 1: AXIS SELECTION */
+        .axis-select {
+            text-align: center;
+        }
+
+        .axis-select h1 {
+            color: var(--purple);
+            margin-bottom: 10px;
+        }
+
+        .axis-select p {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .axis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .axis-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .axis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            border-color: var(--purple);
+        }
+
+        .axis-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* SCREEN 2: QUIZ INTERFACE */
+        .quiz-container {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timer {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .question-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-answer {
+            padding: 25px 20px;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 0px rgba(0,0,0,0.2);
+            transition: filter 0.2s, transform 0.1s;
+            text-align: left;
+        }
+
+        .btn-answer:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+        }
+
+        .btn-red { background-color: var(--red); }
+        .btn-blue { background-color: var(--blue); }
+        .btn-yellow { background-color: var(--yellow); }
+        .btn-green { background-color: var(--green); }
+
+        .shape {
+            font-size: 1.5rem;
+        }
+
+        /* FEEDBACK / EXPLANATION CARD */
+        .feedback-card {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-left: 8px solid var(--purple);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .feedback-card.correct { border-left-color: var(--green); }
+        .feedback-card.incorrect { border-left-color: var(--red); }
+
+        .feedback-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .btn-next {
+            margin-top: 15px;
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* SCREEN 3: SENSORY / IMMERSION ACTIVITY */
+        .sensory-container {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .sensory-title {
+            color: var(--purple);
+            margin-bottom: 15px;
+        }
+
+        .scale-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .scale-btn {
+            background: #f0f0f0;
+            border: 2px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            width: 28%;
+        }
+
+        .scale-btn.selected {
+            border-color: var(--purple);
+            background-color: #f0e6ff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">⚡ IA STEM : Canicule T1</div>
+        <div class="score-board">Score : <span id="score">0</span> pts</div>
+    </header>
+
+    <main>
+        <!-- STEP 1: AXIS SELECTION -->
+        <section id="axis-screen" class="axis-select">
+            <h1>Choisissez un Axe de Recherche</h1>
+            <p>Répondez au quiz de 5 questions puis réalisez l'expérience de ressentie.</p>
+            
+            <div class="axis-grid">
+                <div class="axis-card" onclick="startQuiz('home')">
+                    <div class="axis-icon">🏠</div>
+                    <h3>1. Canicule chez toi</h3>
+                    <p>Quiz « Ma chambre à 2 h du matin »</p>
+                </div>
+                <div class="axis-card" onclick="startQuiz('school')">
+                    <div class="axis-icon">🏫</div>
+                    <h3>2. Canicule au collège</h3>
+                    <p>Quiz « La cour à 14 h »</p>
+                </div>
+                <div class="axis-card" onclick="startQuiz('city')">
+                    <div class="axis-icon">🏙️</div>
+                    <h3>3. Canicule à l'extérieur</h3>
+                    <p>Quiz « Ma ville au pic de chaleur »</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: QUIZ DISPLAY -->
+        <section id="quiz-screen" class="quiz-container">
+            <div class="quiz-header">
+                <span id="question-progress" style="font-weight: bold; color: #666;">Question 1/5</span>
+                <div class="timer" id="timer">20</div>
+            </div>
+
+            <div class="question-box" id="question-text">
+                Chargement de la question...
+            </div>
+
+            <div class="answers-grid" id="answers-grid">
+                <button class="btn-answer btn-red" onclick="checkAnswer(0)">
+                    <span class="shape">▲</span> <span id="ans0">Option 1</span>
+                </button>
+                <button class="btn-answer btn-blue" onclick="checkAnswer(1)">
+                    <span class="shape">◆</span> <span id="ans1">Option 2</span>
+                </button>
+                <button class="btn-answer btn-yellow" onclick="checkAnswer(2)">
+                    <span class="shape">●</span> <span id="ans2">Option 3</span>
+                </button>
+                <button class="btn-answer btn-green" onclick="checkAnswer(3)">
+                    <span class="shape">■</span> <span id="ans3">Option 4</span>
+                </button>
+            </div>
+
+            <div id="feedback-box" class="feedback-card">
+                <div class="feedback-title" id="feedback-title">Résultat</div>
+                <p id="feedback-explanation">Explication de l'IA...</p>
+                <button class="btn-next" onclick="nextQuestion()">Question Suivante →</button>
+            </div>
+        </section>
+
+        <!-- STEP 3: SENSORY EXPERIMENTAL ACTIVITY -->
+        <section id="sensory-screen" class="sensory-container">
+            <h2 class="sensory-title" id="sensory-title">Activité de Ressenti</h2>
+            <div id="sensory-content">
+                <!-- Injected via JavaScript depending on Axis -->
+            </div>
+            <button class="btn-next" style="margin-top: 20px;" onclick="finishAxis()">Valider cet Axe sur l'Outil de Suivi (OS) →</button>
+        </section>
+    </main>
+
+    <script>
+        // QUIZ DATA FROM USER SPECIFICATION
+        const quizzes = {
+            home: {
+                title: "Canicule chez toi",
+                questions: [
+                    {
+                        q: "Une « nuit tropicale », c'est une nuit où la température reste au-dessus de…",
+                        options: ["15 °C", "20 °C", "25 °C", "30 °C"],
+                        correct: 1,
+                        explanation: "C'est 20 °C ! En dessous de cette température, le corps humain a beaucoup de mal à se régénérer pendant le sommeil."
+                    },
+                    {
+                        q: "Le matin, il fait encore frais. Pour garder le logement frais :",
+                        options: ["Ouvrir en grand toute la journée", "Fermer volets et fenêtres le jour, aérer la nuit", "Mettre des glaçons devant les fenêtres ouvertes", "Laisser les fenêtres en oscillo-battant"],
+                        correct: 1,
+                        explanation: "Fermer le jour empêche l'air chaud d'entrer. Aérer la nuit permet de créer des courants d'air rafraîchissants."
+                    },
+                    {
+                        q: "Un ventilateur braqué sur moi refroidit l'air de la pièce. Vrai ou faux ?",
+                        options: ["Vrai", "Faux"],
+                        correct: 1,
+                        explanation: "Faux ! Le ventilateur déplace l'air et aide la sueur à s'évaporer sur la peau, mais il n'abaisse pas la température de la pièce."
+                    },
+                    {
+                        q: "Si je n'ai pas soif pendant une canicule, je n'ai pas besoin de boire. Vrai ou faux ?",
+                        options: ["Vrai", "Faux"],
+                        correct: 1,
+                        explanation: "Faux ! La sensation de soif intervient quand on est déjà déshydraté. Il faut boire régulièrement sans attendre."
+                    },
+                    {
+                        q: "Quel logement chauffe le plus lors d'une canicule ?",
+                        options: ["Rez-de-chaussée ombragé", "1er étage orienté Est", "Dernier étage sous toiture orienté Sud", "Sous-sol aménagé"],
+                        correct: 2,
+                        explanation: "Le dernier étage sous toiture subit l'impact direct du soleil sur le toit et la chaleur monte dans le bâtiment."
+                    }
+                ],
+                sensory: `
+                    <p><strong>🎙️ Écoutez le témoignage audio (1 min) :</strong> Ambiance de nuit chaude en dernier étage.</p>
+                    <audio controls style="width: 100%; margin: 15px 0;">
+                        <source src="" type="audio/mp3">
+                        [Audio : Témoignage d'un habitant en sous-pente]
+                    </audio>
+                    <p><strong>Placez votre réaction sur votre échelle corporelle :</strong></p>
+                    <div class="scale-container">
+                        <div class="scale-btn" onclick="selectScale(this)">😴 Sommeil perturbé</div>
+                        <div class="scale-btn" onclick="selectScale(this)">😤 Mood / Humeur</div>
+                        <div class="scale-btn" onclick="selectScale(this)">🧠 Concentration en baisse</div>
+                    </div>
+                `
+            },
+            school: {
+                title: "Canicule au collège",
+                questions: [
+                    {
+                        q: "Classez ces revêtements du PLUS CHAUD au PLUS FRAIS :",
+                        options: ["Pelouse > Sol clair > Bitume", "Bitume foncé > Sol clair > Pelouse", "Sol clair > Bitume > Pelouse", "Pelouse > Bitume > Sol clair"],
+                        correct: 1,
+                        explanation: "Le bitume foncé absorbe le rayonnement solaire (albédo faible). La pelouse transpire de l'eau (évapotranspiration) et reste très fraîche."
+                    },
+                    {
+                        q: "Une salle vitrée orientée Sud à midi : que faut-il faire ?",
+                        options: ["Stores baissés (de préférence à l'extérieur)", "Fenêtres grandes ouvertes", "Allumer la lumière", "Ouvrir la porte du couloir uniquement"],
+                        correct: 0,
+                        explanation: "Les stores baissés stoppent les rayons du soleil avant qu'ils ne traversent la vitre et ne créent un effet de serre."
+                    },
+                    {
+                        q: "Une classe de 30 élèves dégage à peu près autant de chaleur que…",
+                        options: ["Un radiateur de 2000W", "Environ 30 ampoules classiques", "Rien du tout", "Un réfrigérateur"],
+                        correct: 1,
+                        explanation: "Chaque corps humain dégage environ 80 à 100 Watts au repos. 30 élèves équivalent à 3000W de dégagement thermique !"
+                    },
+                    {
+                        q: "À la récréation, où vaut-il mieux se réfugier ?",
+                        options: ["Sous un préau en tôle", "Sous la canopée d'un arbre", "Contre le mur Sud", "Sous le préau en béton"],
+                        correct: 1,
+                        explanation: "L'arbre apporte de l'ombre ET de la fraîcheur active par l'évaporation de l'eau par ses feuilles."
+                    },
+                    {
+                        q: "Quand il fait très chaud, on apprend moins bien. Vrai ou faux ?",
+                        options: ["Vrai", "Faux"],
+                        correct: 0,
+                        explanation: "Vrai ! Des études montrent que la chaleur excessive réduit les capacités cognitives, la mémoire et la concentration des élèves."
+                    }
+                ],
+                sensory: `
+                    <p><strong>🌡️ La chasse aux degrés (Terrain) :</strong></p>
+                    <p>Utilisez le thermomètre infrarouge pour mesurer 6 points de votre collège (cour, banc, mur Sud, ombre, classe, couloir).</p>
+                    <p style="margin-top: 10px;"><em>Inscrivez la valeur de la plus grande différence observée entre prédiction et mesure réelle :</em></p>
+                    <input type="text" placeholder="Ex: Écart de 12°C entre bitume et sous l'arbre" style="width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                `
+            },
+            city: {
+                title: "Canicule à l'extérieur",
+                questions: [
+                    {
+                        q: "Pourquoi la ville reste-t-elle plus chaude que la campagne la nuit ?",
+                        options: ["Il y a plus de voitures", "Les matériaux stockent la chaleur le jour et la rendent la nuit", "L'éclairage public chauffe l'air", "Les usines tournent la nuit"],
+                        correct: 1,
+                        explanation: "C'est le phénomène d'Îlot de Chaleur Urbain (ICU). Le béton et l'asphalte accumulent l'énergie thermique durant la journée."
+                    },
+                    {
+                        q: "Pour attendre le bus, l'endroit le plus frais est :",
+                        options: ["L'abribus vitré au soleil", "L'ombre portée d'un arbre", "Sous un panneau publicitaire", "À côté du pot d'échappement du bus"],
+                        correct: 1,
+                        explanation: "L'abribus vitré fait effet de serre. L'ombre de l'arbre bloque le rayonnement direct sans emprisonner l'air."
+                    },
+                    {
+                        q: "Une toiture ou une façade claire reste plus fraîche qu'une foncée. Vrai ou faux ?",
+                        options: ["Vrai", "Faux"],
+                        correct: 0,
+                        explanation: "Vrai ! C'est le pouvoir d'albédo. Les surfaces claires réfléchissent la lumière du soleil au lieu de l'absorber."
+                    },
+                    {
+                        q: "La climatisation des bâtiments refroidit la ville. Vrai ou faux ?",
+                        options: ["Vrai", "Faux"],
+                        correct: 1,
+                        explanation: "Faux ! La clim extrait la chaleur de l'intérieur pour la recracher... à l'extérieur, ce qui réchauffe encore plus la rue !"
+                    },
+                    {
+                        q: "Qui souffre le plus de la chaleur dehors ?",
+                        options: ["Les personnes âgées", "Les jeunes enfants", "Les personnes qui travaillent dehors", "Les trois catégories"],
+                        correct: 3,
+                        explanation: "Les trois ! La chaleur extrême impacte la santé des plus fragiles comme des personnes soumises à l'effort physique extérieur."
+                    }
+                ],
+                sensory: `
+                    <p><strong>🗺️ Carte sensible du trajet maison-collège :</strong></p>
+                    <p>Positionnez vos gommettes virtuelles sur le plan de la ville :</p>
+                    <div style="display: flex; gap: 15px; margin: 15px 0;">
+                        <button style="background: #e21b3c; color: white; border: none; padding: 10px; border-radius: 8px;">🔴 Zone où j'ai trop chaud</button>
+                        <button style="background: #1368ce; color: white; border: none; padding: 10px; border-radius: 8px;">🔵 Zone où je respire</button>
+                    </div>
+                    <textarea placeholder="Décrivez le point le plus chaud de votre trajet quotidien..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+                `
+            }
+        };
+
+        // STATE VARIABLES
+        let currentAxis = null;
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let timerInterval = null;
+        let timeLeft = 20;
+
+        // FUNCTIONS
+        function startQuiz(axisKey) {
+            currentAxis = quizzes[axisKey];
+            currentQuestionIdx = 0;
+            
+            document.getElementById('axis-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'flex';
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const qData = currentAxis.questions[currentQuestionIdx];
+            
+            document.getElementById('question-progress').innerText = `Axe: ${currentAxis.title} — Question ${currentQuestionIdx + 1}/${currentAxis.questions.length}`;
+            document.getElementById('question-text').innerText = qData.q;
+            document.getElementById('feedback-box').style.display = 'none';
+            
+            const grid = document.getElementById('answers-grid');
+            grid.style.pointerEvents = 'auto';
+            
+            // Populate buttons
+            for (let i = 0; i < 4; i++) {
+                const btn = grid.children[i];
+                if (i < qData.options.length) {
+                    btn.style.display = 'flex';
+                    document.getElementById(`ans${i}`).innerText = qData.options[i];
+                } else {
+                    btn.style.display = 'none'; // Hide unused options if true/false
+                }
+            }
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 20;
+            document.getElementById('timer').innerText = timeLeft;
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    checkAnswer(-1); // Timeout
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedIdx) {
+            clearInterval(timerInterval);
+            const qData = currentAxis.questions[currentQuestionIdx];
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const grid = document.getElementById('answers-grid');
+            
+            grid.style.pointerEvents = 'none'; // Lock buttons
+            
+            if (selectedIdx === qData.correct) {
+                score += 100 + (timeLeft * 10);
+                document.getElementById('score').innerText = score;
+                feedbackBox.className = "feedback-card correct";
+                feedbackTitle.innerText = "🎉 Bon choix ! (+ points d'albédo)";
+            } else {
+                feedbackBox.className = "feedback-card incorrect";
+                feedbackTitle.innerText = selectedIdx === -1 ? "⏱️ Temps écoulé !" : "❌ Pas tout à fait...";
+            }
+
+            document.getElementById('feedback-explanation').innerText = qData.explanation;
+            feedbackBox.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < currentAxis.questions.length) {
+                showQuestion();
+            } else {
+                // End of quiz -> Show Sensory activity
+                document.getElementById('quiz-screen').style.display = 'none';
+                document.getElementById('sensory-screen').style.display = 'block';
+                document.getElementById('sensory-title').innerText = `Activité de Ressenti : ${currentAxis.title}`;
+                document.getElementById('sensory-content').innerHTML = currentAxis.sensory;
+            }
+        }
+
+        function selectScale(element) {
+            const btns = element.parentElement.children;
+            for (let btn of btns) btn.classList.remove('selected');
+            element.classList.add('selected');
+        }
+
+        function finishAxis() {
+            alert("Axe complété avec succès ! Les données sont transférées sur l'Outil de Suivi (OS).");
+            document.getElementById('sensory-screen').style.display = 'none';
+            document.getElementById('axis-screen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
